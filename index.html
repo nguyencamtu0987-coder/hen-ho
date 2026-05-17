@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Will You Be My Date?</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -19,32 +20,30 @@
             justify-content: center;
             align-items: center;
             background-color: #ffe6e6;
-            /* Tạo hình nền trái tim bay bổng */
-            background-image: radial-gradient(#ffb3b3 20%, transparent 20%),
-                              radial-gradient(#ffb3b3 20%, transparent 20%);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
             overflow: hidden;
             text-align: center;
             padding: 20px;
+            position: relative;
         }
 
+        /* Khung chứa nội dung */
         .container {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.92);
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(217, 56, 56, 0.15);
             max-width: 500px;
             width: 100%;
-            border: 2px solid #ff9999;
+            border: 2px solid #ffb3b3;
             z-index: 10;
+            transition: all 0.3s ease;
         }
 
         h1 {
             color: #d93838;
             font-size: 2.5rem;
             margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
         }
 
         p {
@@ -59,62 +58,103 @@
             font-weight: bold;
         }
 
+        /* Khu vực chứa nút - Ban đầu để Flexbox để 2 nút NGANG HÀNG nhau */
         .btn-group {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 30px;
-            height: 80px;
-            position: relative;
+            gap: 20px;
+            margin-top: 20px;
         }
 
         button {
-            padding: 12px 35px;
+            padding: 12px 30px;
             font-size: 1.1rem;
             font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        button:active {
-            transform: scale(0.95);
         }
 
         #yesBtn {
             background-color: #ff4d4d;
             color: white;
+            transition: transform 0.2s, background-color 0.2s;
         }
 
         #yesBtn:hover {
             background-color: #ff3333;
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
 
         #noBtn {
-            background-color: #999;
+            background-color: #a6a6a6;
             color: white;
-            position: absolute; /* Quan trọng để nút có thể dịch chuyển tự do */
-            transition: all 0.1s ease;
+            /* Thiết lập ban đầu ở trạng thái tương đối để nằm cùng hàng */
+            position: relative; 
+            z-index: 11;
         }
 
-        /* Hiệu ứng trái tim lớn bay giữa màn hình */
-        .heart-bg {
+        /* Hộp thoại thông báo ngọt ngào khi bấm YES */
+        .success-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            z-index: 100;
+            width: 90%;
+            max-width: 450px;
+            border: 3px solid #ff4d4d;
+            animation: popIn 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .success-box h2 {
+            color: #ff4d4d;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .success-box p {
+            font-size: 1.1rem;
+            color: #444;
+            margin-bottom: 0;
+        }
+
+        /* CSS tạo hiệu ứng Trái tim rơi nền */
+        .heart-fall {
             position: absolute;
-            font-size: 15rem;
-            color: rgba(255, 77, 77, 0.05);
+            color: #ff9999;
+            font-size: 20px;
+            pointer-events: none;
             z-index: 1;
-            user-select: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="heart-bg">❤</div>
-
-    <div class="container">
+    <div class="container" id="mainCard">
         <h1>Will you be my date?</h1>
         <p>Hẹn <span class="highlight">Nhựt</span> đi date vào <span class="highlight">thứ 7 tuần sau</span> nha! 💕</p>
         
@@ -124,38 +164,116 @@
         </div>
     </div>
 
+    <div class="success-box" id="successBox">
+        <h2>Chốt kèo luôn nha! 🥰</h2>
+        <p>Hẹn Nhựt thứ 7 tuần sau, không gặp không về! Nhựt chỉ được phép mỉm cười đồng ý thôi chứ không chạy thoát được đâu nhé! 🌹🎉</p>
+    </div>
+
     <script>
         const noBtn = document.getElementById('noBtn');
-        const container = document.querySelector('.container');
+        const mainCard = document.getElementById('mainCard');
+        const successBox = document.getElementById('successBox');
+        let isFirstMove = true;
 
-        // Hàm làm nút "Are you sure?" bỏ chạy
+        // 1. Tạo hiệu ứng TRÁI TIM RƠI ngẫu nhiên khi mở trang web
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-fall');
+            heart.innerHTML = '❤';
+            
+            // Vị trí ngang ngẫu nhiên
+            heart.style.left = Math.random() * 100 + "vw";
+            // Kích thước ngẫu nhiên
+            const size = Math.random() * 15 + 10;
+            heart.style.fontSize = size + "px";
+            // Tốc độ rơi ngẫu nhiên (từ 3s đến 6s)
+            heart.style.animationDuration = Math.random() * 3 + 3 + "s";
+            // Độ mờ ngẫu nhiên
+            heart.style.opacity = Math.random() * 0.5 + 0.3;
+            
+            document.body.appendChild(heart);
+            
+            // Xóa trái tim sau khi rơi xong để tránh nặng máy
+            setTimeout(() => {
+                heart.remove();
+            }, 6000);
+        }
+        // Tạo liên tục các trái tim rơi
+        setInterval(createHeart, 300);
+
+        // 2. Hàm xử lý nút "Are you sure?" bỏ chạy
         function moveButton() {
-            // Lấy kích thước màn hình hiện tại trừ đi kích thước nút để tránh bị tràn viền
+            // Khi di chuột vào lần đầu tiên, chuyển nút sang trạng thái 'fixed' để nó tự do bay nhảy
+            if (isFirstMove) {
+                noBtn.style.position = 'fixed';
+                isFirstMove = false;
+            }
+
+            // Tính toán giới hạn màn hình an toàn
             const maxX = window.innerWidth - noBtn.offsetWidth - 20;
             const maxY = window.innerHeight - noBtn.offsetHeight - 20;
 
-            // Tính toán tọa độ ngẫu nhiên
             let randomX = Math.floor(Math.random() * maxX);
             let randomY = Math.floor(Math.random() * maxY);
 
-            // Đảm bảo nút không nhảy đè vào khu vực hộp thoại chính (giữ trải nghiệm mượt mà)
-            const rect = container.getBoundingClientRect();
-            if (randomX > rect.left - 50 && randomX < rect.right + 50 &&
-                randomY > rect.top - 50 && randomY < rect.bottom + 50) {
-                randomX = randomX + (randomX < window.innerWidth / 2 ? -200 : 200);
-                randomY = randomY + (randomY < window.innerHeight / 2 ? -200 : 200);
+            // Tránh việc nút nhảy đè vào giữa cái khung hộp thoại chính
+            const rect = mainCard.getBoundingClientRect();
+            if (randomX > rect.left - 40 && randomX < rect.right + 40 &&
+                randomY > rect.top - 40 && randomY < rect.bottom + 40) {
+                randomX = randomX + (randomX < window.innerWidth / 2 ? -180 : 180);
+                randomY = randomY + (randomY < window.innerHeight / 2 ? -180 : 180);
             }
 
-            // Gán vị trí mới cho nút
-            noBtn.style.position = 'fixed';
+            // Gán tọa độ mới bắt nút nhảy đi chỗ khác
             noBtn.style.left = Math.max(10, Math.min(randomX, maxX)) + 'px';
             noBtn.style.top = Math.max(10, Math.min(randomY, maxY)) + 'px';
         }
 
-        // Hành động khi bấm "Yes"
+        // 3. Hàm kích hoạt hiệu ứng khi chọn "YES"
         function selectYes() {
-            alert("Chốt kèo nha! Hẹn Nhựt thứ 7 tuần sau, không gặp không về đó chỉ biết mỉm cười đồng ý thôi đúng không? 🥰");
-            // Bạn có thể đổi dòng chữ alert trên thành bất cứ câu gì bạn muốn nhắn gửi.
+            // Ẩn hộp thoại cũ đi và hiện hộp thoại chúc mừng ngọt ngào lên
+            mainCard.style.display = 'none';
+            successBox.style.display = 'block';
+
+            // Hiệu ứng pháo hoa nổ liên tục 3 lần
+            let duration = 3 * 1000;
+            let end = Date.now() + duration;
+
+            (function frame() {
+                // Bắn pháo hoa bên trái
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.8 }
+                });
+                // Bắn pháo hoa bên phải
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.8 }
+                });
+
+                // Hiệu ứng thả CÁNH HOA HỒNG rơi lãng mạn từ trên xuống
+                confetti({
+                    particleCount: 2,
+                    spread: 360,
+                    ticks: 50,
+                    gravity: 0.8,
+                    decay: 0.94,
+                    startVelocity: 10,
+                    colors: ['#ff4d4d', '#ffb3b3', '#ffccd5', '#ff3366'], // Tone màu hoa hồng đỏ hồng
+                    origin: {
+                        x: Math.random(),
+                        y: Math.random() * 0.3 // Rơi từ trên đỉnh màn hình xuống
+                    }
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
         }
     </script>
 </body>
