@@ -19,19 +19,20 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #ffe6e6;
+            background-color: #ffe6e6; /* Màu nền hồng pastel ban đầu */
             overflow: hidden;
             text-align: center;
             padding: 20px;
             position: relative;
+            transition: background-color 0.8s ease; /* Hiệu ứng đổi màu nền mượt mà */
         }
 
-        /* Khung chứa nội dung */
+        /* Khung nội dung chính */
         .container {
             background-color: rgba(255, 255, 255, 0.92);
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(217, 56, 56, 0.15);
+            box-shadow: 0 10px 30px rgba(217, 56, 56, 0.1);
             max-width: 500px;
             width: 100%;
             border: 2px solid #ffb3b3;
@@ -43,7 +44,6 @@
             color: #d93838;
             font-size: 2.5rem;
             margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
         }
 
         p {
@@ -58,7 +58,7 @@
             font-weight: bold;
         }
 
-        /* Khu vực chứa nút - Ban đầu để Flexbox để 2 nút NGANG HÀNG nhau */
+        /* Khối chứa 2 nút ban đầu NGANG HÀNG */
         .btn-group {
             display: flex;
             justify-content: center;
@@ -68,13 +68,13 @@
         }
 
         button {
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-size: 1.1rem;
             font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
         #yesBtn {
@@ -91,12 +91,11 @@
         #noBtn {
             background-color: #a6a6a6;
             color: white;
-            /* Thiết lập ban đầu ở trạng thái tương đối để nằm cùng hàng */
             position: relative; 
             z-index: 11;
         }
 
-        /* Hộp thoại thông báo ngọt ngào khi bấm YES */
+        /* Hộp thoại thông báo khi chọn YES */
         .success-box {
             display: none;
             position: fixed;
@@ -106,7 +105,7 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
             z-index: 100;
             width: 90%;
             max-width: 450px;
@@ -127,14 +126,11 @@
         .success-box p {
             font-size: 1.1rem;
             color: #444;
-            margin-bottom: 0;
         }
 
-        /* CSS tạo hiệu ứng Trái tim rơi nền */
-        .heart-fall {
+        /* Hiệu ứng vật rơi nền */
+        .falling-item {
             position: absolute;
-            color: #ff9999;
-            font-size: 20px;
             pointer-events: none;
             z-index: 1;
             animation: fall linear infinite;
@@ -160,13 +156,13 @@
         
         <div class="btn-group">
             <button id="yesBtn" onclick="selectYes()">Yes</button>
-            <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">Are you sure?</button>
+            <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">No</button>
         </div>
     </div>
 
     <div class="success-box" id="successBox">
-        <h2>Chốt kèo luôn nha! 🥰</h2>
-        <p>Hẹn Nhựt thứ 7 tuần sau, không gặp không về! Nhựt chỉ được phép mỉm cười đồng ý thôi chứ không chạy thoát được đâu nhé! 🌹🎉</p>
+        <h2>Chốt kèo rồi nha! 😏</h2>
+        <p>Cái nút bên kia chỉ làm cảnh thôi chứ chạy đằng trời.</p>
     </div>
 
     <script>
@@ -174,49 +170,51 @@
         const mainCard = document.getElementById('mainCard');
         const successBox = document.getElementById('successBox');
         let isFirstMove = true;
+        let activeEffect = 'heart'; // Ban đầu rơi trái tim
 
-        // 1. Tạo hiệu ứng TRÁI TIM RƠI ngẫu nhiên khi mở trang web
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('heart-fall');
-            heart.innerHTML = '❤';
+        // Hàm tạo vật rơi tổng hợp
+        function createFallingItem() {
+            const item = document.createElement('div');
+            item.classList.add('falling-item');
             
-            // Vị trí ngang ngẫu nhiên
-            heart.style.left = Math.random() * 100 + "vw";
-            // Kích thước ngẫu nhiên
-            const size = Math.random() * 15 + 10;
-            heart.style.fontSize = size + "px";
-            // Tốc độ rơi ngẫu nhiên (từ 3s đến 6s)
-            heart.style.animationDuration = Math.random() * 3 + 3 + "s";
-            // Độ mờ ngẫu nhiên
-            heart.style.opacity = Math.random() * 0.5 + 0.3;
+            if (activeEffect === 'heart') {
+                item.innerHTML = '❤';
+                item.style.color = '#ff9999';
+            } else {
+                // Danh sách hoa dễ thương khi chọn YES
+                const flowers = ['🌸', '🌼', '🌹', '🌻', '🌺'];
+                item.innerHTML = flowers[Math.floor(Math.random() * flowers.length)];
+            }
             
-            document.body.appendChild(heart);
+            item.style.left = Math.random() * 100 + "vw";
+            const size = Math.random() * 15 + 12;
+            item.style.fontSize = size + "px";
+            item.style.animationDuration = Math.random() * 3 + 3 + "s";
+            item.style.opacity = Math.random() * 0.6 + 0.4;
             
-            // Xóa trái tim sau khi rơi xong để tránh nặng máy
+            document.body.appendChild(item);
+            
             setTimeout(() => {
-                heart.remove();
+                item.remove();
             }, 6000);
         }
-        // Tạo liên tục các trái tim rơi
-        setInterval(createHeart, 300);
 
-        // 2. Hàm xử lý nút "Are you sure?" bỏ chạy
+        // Chạy hiệu ứng rơi liên tục
+        setInterval(createFallingItem, 250);
+
+        // Hàm xử lý nút "No" bỏ chạy
         function moveButton() {
-            // Khi di chuột vào lần đầu tiên, chuyển nút sang trạng thái 'fixed' để nó tự do bay nhảy
             if (isFirstMove) {
                 noBtn.style.position = 'fixed';
                 isFirstMove = false;
             }
 
-            // Tính toán giới hạn màn hình an toàn
             const maxX = window.innerWidth - noBtn.offsetWidth - 20;
             const maxY = window.innerHeight - noBtn.offsetHeight - 20;
 
             let randomX = Math.floor(Math.random() * maxX);
             let randomY = Math.floor(Math.random() * maxY);
 
-            // Tránh việc nút nhảy đè vào giữa cái khung hộp thoại chính
             const rect = mainCard.getBoundingClientRect();
             if (randomX > rect.left - 40 && randomX < rect.right + 40 &&
                 randomY > rect.top - 40 && randomY < rect.bottom + 40) {
@@ -224,50 +222,37 @@
                 randomY = randomY + (randomY < window.innerHeight / 2 ? -180 : 180);
             }
 
-            // Gán tọa độ mới bắt nút nhảy đi chỗ khác
             noBtn.style.left = Math.max(10, Math.min(randomX, maxX)) + 'px';
             noBtn.style.top = Math.max(10, Math.min(randomY, maxY)) + 'px';
         }
 
-        // 3. Hàm kích hoạt hiệu ứng khi chọn "YES"
+        // Hàm xử lý khi bấm YES
         function selectYes() {
-            // Ẩn hộp thoại cũ đi và hiện hộp thoại chúc mừng ngọt ngào lên
             mainCard.style.display = 'none';
             successBox.style.display = 'block';
+            
+            // 1. Đổi màu nền sang xanh mint pastel tươi sáng
+            document.body.style.backgroundColor = '#e6fffa'; 
+            
+            // 2. Chuyển hiệu ứng rơi từ trái tim sang hoa dễ thương
+            activeEffect = 'flower';
 
-            // Hiệu ứng pháo hoa nổ liên tục 3 lần
+            // 3. Kích hoạt pháo hoa giấy rực rỡ nổ liên tục trong 3 giây
             let duration = 3 * 1000;
             let end = Date.now() + duration;
 
             (function frame() {
-                // Bắn pháo hoa bên trái
                 confetti({
-                    particleCount: 5,
+                    particleCount: 4,
                     angle: 60,
                     spread: 55,
-                    origin: { x: 0, y: 0.8 }
+                    origin: { x: 0, y: 0.85 }
                 });
-                // Bắn pháo hoa bên phải
                 confetti({
-                    particleCount: 5,
+                    particleCount: 4,
                     angle: 120,
                     spread: 55,
-                    origin: { x: 1, y: 0.8 }
-                });
-
-                // Hiệu ứng thả CÁNH HOA HỒNG rơi lãng mạn từ trên xuống
-                confetti({
-                    particleCount: 2,
-                    spread: 360,
-                    ticks: 50,
-                    gravity: 0.8,
-                    decay: 0.94,
-                    startVelocity: 10,
-                    colors: ['#ff4d4d', '#ffb3b3', '#ffccd5', '#ff3366'], // Tone màu hoa hồng đỏ hồng
-                    origin: {
-                        x: Math.random(),
-                        y: Math.random() * 0.3 // Rơi từ trên đỉnh màn hình xuống
-                    }
+                    origin: { x: 1, y: 0.85 }
                 });
 
                 if (Date.now() < end) {
