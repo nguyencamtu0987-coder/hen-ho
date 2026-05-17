@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Date?</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe6e6;
+            /* Tạo hình nền trái tim bay bổng */
+            background-image: radial-gradient(#ffb3b3 20%, transparent 20%),
+                              radial-gradient(#ffb3b3 20%, transparent 20%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid #ff9999;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #d93838;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        p {
+            color: #555;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            height: 80px;
+            position: relative;
+        }
+
+        button {
+            padding: 12px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #yesBtn {
+            background-color: #ff4d4d;
+            color: white;
+        }
+
+        #yesBtn:hover {
+            background-color: #ff3333;
+            transform: scale(1.05);
+        }
+
+        #noBtn {
+            background-color: #999;
+            color: white;
+            position: absolute; /* Quan trọng để nút có thể dịch chuyển tự do */
+            transition: all 0.1s ease;
+        }
+
+        /* Hiệu ứng trái tim lớn bay giữa màn hình */
+        .heart-bg {
+            position: absolute;
+            font-size: 15rem;
+            color: rgba(255, 77, 77, 0.05);
+            z-index: 1;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heart-bg">❤</div>
+
+    <div class="container">
+        <h1>Will you be my date?</h1>
+        <p>Hẹn <span class="highlight">Nhựt</span> đi date vào <span class="highlight">thứ 7 tuần sau</span> nha! 💕</p>
+        
+        <div class="btn-group">
+            <button id="yesBtn" onclick="selectYes()">Yes</button>
+            <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">Are you sure?</button>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const container = document.querySelector('.container');
+
+        // Hàm làm nút "Are you sure?" bỏ chạy
+        function moveButton() {
+            // Lấy kích thước màn hình hiện tại trừ đi kích thước nút để tránh bị tràn viền
+            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
+            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+
+            // Tính toán tọa độ ngẫu nhiên
+            let randomX = Math.floor(Math.random() * maxX);
+            let randomY = Math.floor(Math.random() * maxY);
+
+            // Đảm bảo nút không nhảy đè vào khu vực hộp thoại chính (giữ trải nghiệm mượt mà)
+            const rect = container.getBoundingClientRect();
+            if (randomX > rect.left - 50 && randomX < rect.right + 50 &&
+                randomY > rect.top - 50 && randomY < rect.bottom + 50) {
+                randomX = randomX + (randomX < window.innerWidth / 2 ? -200 : 200);
+                randomY = randomY + (randomY < window.innerHeight / 2 ? -200 : 200);
+            }
+
+            // Gán vị trí mới cho nút
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = Math.max(10, Math.min(randomX, maxX)) + 'px';
+            noBtn.style.top = Math.max(10, Math.min(randomY, maxY)) + 'px';
+        }
+
+        // Hành động khi bấm "Yes"
+        function selectYes() {
+            alert("Chốt kèo nha! Hẹn Nhựt thứ 7 tuần sau, không gặp không về đó chỉ biết mỉm cười đồng ý thôi đúng không? 🥰");
+            // Bạn có thể đổi dòng chữ alert trên thành bất cứ câu gì bạn muốn nhắn gửi.
+        }
+    </script>
+</body>
+</html>
